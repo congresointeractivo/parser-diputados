@@ -1,5 +1,6 @@
 require 'nokogiri'
 require 'parser'
+require 'set'
 
 class ParserDiputados < Parser
 
@@ -41,6 +42,8 @@ class ParserDiputados < Parser
     data[:bloques] = []
     data[:diputados] = []
 
+    bloques = Set.new
+
     doc.css("#tablesorter tbody tr").each do |el|
       next if el.css("td").empty?
 
@@ -60,10 +63,10 @@ class ParserDiputados < Parser
                                     .gsub("_medium", "")
 
       data[:diputados] << diputado
-      data[:bloques] << diputado[:bloque]
+      bloques << diputado[:bloque]
     end
 
-    data[:bloques].uniq!.sort! unless data[:bloques].empty?
+    data[:bloques] = bloques.to_a
     data
   end
 
