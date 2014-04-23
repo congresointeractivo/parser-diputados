@@ -2,7 +2,7 @@
 
 Scrapea el listado de diputados y genera un archivo JSON con esa informacion
 
-# Instalacion
+## Instalacion
 
 ```bash
 git clone https://github.com/congresointeractivo/parser-diputados.git
@@ -10,14 +10,14 @@ cd parser-diputados
 bundle install
 ```
 
-# Uso
+## Uso
 
 ```bash
 Usage: parser_diputados.rb [options]
     -o, --output FILENAME            Save the output to a file
 ```
 
-# Salida
+## Salida
 
 ```json
 {
