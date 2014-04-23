@@ -15,9 +15,19 @@ bundle install
 ```bash
 Usage: parser_diputados.rb [options]
     -o, --output FILENAME            Save the output to a file
+    -i, --instance INSTANCE_NAME    Save data to a PopIt instance in popit.mysociety.org using popit-ruby
+    -u, --user USERNAME   API Username
+    -p, --password PASSWORD API Password
+
+Example: parser_diputados.rb -i legisladores-ar -u youruser -p yourpassword
 ```
 
 ## Salida
+
+En modo API:
+Updating/creating [nombre diputado]
+
+En modo json (Desactualizado)
 
 ```json
 {
