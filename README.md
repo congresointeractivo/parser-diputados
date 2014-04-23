@@ -9,12 +9,24 @@ git clone https://github.com/congresointeractivo/parser-diputados.git
 cd parser-diputados
 bundle install
 ```
+## Ejemplos
+```
+parser_diputados
+```
+
+Otros ejemplos:
+
+```
+parser_diputados -o diputados.json
+parser_diputados | python -mjson.tool
+```
 
 ## Uso
 
 ```bash
-Usage: parser_diputados.rb [options]
-    -o, --output FILENAME            Save the output to a file
+parser_diputados [options]
+  -h, --help            Displays help message
+  -o, --output FILENAME Save the output to a file
 ```
 
 ## Salida
@@ -25,8 +37,7 @@ Usage: parser_diputados.rb [options]
     "COALICION CIVICA ARI - UNEN",
     "COMPROMISO FEDERAL",
     "CONSERVADOR POPULAR",
-    "CULTURA, EDUCACION Y TRABAJO",
-    ...
+    "CULTURA, EDUCACION Y TRABAJO"
   ],
   diputados: [
     {
@@ -50,8 +61,7 @@ Usage: parser_diputados.rb [options]
       email: "aabraham@diputados.gob.ar",
       url: "http://www.diputados.gov.ar/diputados/aabraham/",
       imagen_url: "http://www4.hcdn.gob.ar/fotos/aabraham.jpg"
-    },
-    ...
+    }
   ]
 }
 ```

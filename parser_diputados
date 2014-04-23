@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+# encoding: utf-8
+
+# == Synopsis 
+#   parser_diputados is a utility that scrap and generate a JSON file from www.diputados.gov.ar
+#   
+#
+# == Examples
+#     parser_diputados
+#
+#   Other examples:
+#     parser_diputados -o diputados.json
+#     parser_diputados | python -mjson.tool
+#
+# == Usage 
+#   parser_diputados [options]
+#
+#   For help use: parser_diputados -h
+#
+# == Options
+#   -h, --help            Displays help message
+#   -o, --output FILENAME Save the output to a file
+#
+#   TODO - Group diputados by block
+#
+# == Author
+#   Alfredo Ramirez
+#
+# == Copyright
+#   Copyright (c) 2014 Congreso Interactivo. Licensed under the MIT License:
+#   http://www.opensource.org/licenses/mit-license.php
+
+$LOAD_PATH.unshift("#{File.dirname(__FILE__)}/lib")
+
+require 'optparse'
+require 'parser_diputados'
+
+options = {}
+
+optparse = OptionParser.new do |option_parser|
+  option_parser.banner = "Usage: parser_diputados [options]"
+
+  option_parser.on("-o", "--output FILENAME", "Save the output to a file") do |o|
+    options[:output] = o
+  end
+end
+
+optparse.parse!
+
+begin
+  parser = ParserDiputados.new options
+  parser.run
+rescue => e
+  $stderr.puts e
+  abort
+end
+
+exit 0
