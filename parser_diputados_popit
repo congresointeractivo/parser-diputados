@@ -58,8 +58,12 @@ end
 doc = Nokogiri::HTML fetch_and_clean_html
 
 data = {}
-#data[:bloques] = []
+data[:bloques] = []
 data[:diputados] = []
+
+def slug text
+  return I18n.transliterate(text).gsub(" ","-").downcase
+end
 
 doc.css("#tablesorter tbody tr").each do |el|
   next if el.css("td").empty?
@@ -71,38 +75,43 @@ doc.css("#tablesorter tbody tr").each do |el|
     .split(",")
     .map(&:strip)
   diputado[:name]             = name.last.strip.capitalize + " " + name.first.strip.capitalize
-  diputado[:slug]             = I18n.transliterate(diputado[:name]).gsub(" ","-").downcase;
+  diputado[:slug]             = slug diputado[:name];
 
   diputado[:images]           =  {}
   diputado[:images][:url]     = el.css("td img")
                                 .first['src']
                                 .gsub("_medium", "")
 
-  diputado[:parliamentarian_period]               = []
-  
-  period = {}
-  period[:start_date]  = el.css("td")[3].text.strip
-  period[:end_date]    = el.css("td")[4].text.strip
-  period[:district]    = el.css("td")[2].text.strip.capitalize
-  period[:position]    = "diputado"
-
-  diputado[:parliamentarian_period] << period
-
-
-  diputado[:title]            = "Diputado"
-
-
-  diputado[:contact_details]               = []
+  diputado[:contact_details]  = []
 
   contact = {}
-  contact[:label]  = "email"
-  contact[:type]    = "email"
-  contact[:value]    = parse_email el
+  contact[:label]             = "email"
+  contact[:type]              = "email"
+  contact[:value]             = parse_email el
 
   diputado[:contact_details] << contact
 
+  diputado[:memberships] = []
 
-  diputado[:bloque]      = el.css("td")[5].text.strip.capitalize
+
+  ##Disabled, replaced by memberships
+
+  # diputado[:bloque]      = el.css("td")[5].text.strip.capitalize
+
+
+  # diputado[:parliamentarian_period]               = []
+  
+  # period = {}
+  # period[:start_date]  = el.css("td")[3].text.strip
+  # period[:end_date]    = el.css("td")[4].text.strip
+  # period[:district]    = el.css("td")[2].text.strip.capitalize
+  # period[:position]    = "diputado"
+
+  # diputado[:parliamentarian_period] << period
+
+
+  # diputado[:title]            = "Diputado"
+
 
   ## Missing info for the new structure
 
@@ -133,8 +142,9 @@ doc.css("#tablesorter tbody tr").each do |el|
   #                               .gsub("_medium", "")
 
   data[:diputados] << diputado
-  # data[:bloques] << diputado[:bloque]
+  data[:bloques] << diputado[:bloque]
 
+  ##Request to API
   if options[:instance_name] 
     api = PopIt.new :instance_name => options[:instance_name], :user => options[:api_user], :password => options[:api_pass]
     begin
@@ -152,11 +162,75 @@ doc.css("#tablesorter tbody tr").each do |el|
       p diputado
       raise
     end
+
+    diputadoid = response["id"]
+
+    bloque = el.css("td")[5].text.strip.capitalize
+    bloque_slug = slug bloque
+
+    puts "Trabajando con bloque " + bloque_slug
+
+    #bloque_response = api.organizations.get :slug => bloque_slug
+    bloque_response = api.search.organizations.get(:q => 'slug: "'+bloque_slug+'"')
+    #puts bloque_response
+
+    if !bloque_response.empty?
+      bloqueid = bloque_response.first["id"]
+      puts "Bloque ya existe " + bloque + " id: "  + bloqueid
+    else
+      bloqueobj = {}
+      bloqueobj[:name] = bloque
+      bloqueobj[:slug] = slug bloque
+      bloque_response = api.organizations.post bloqueobj
+      bloqueid = bloque_response["id"]
+      puts "Nuevo bloque " + bloque + " id: "  + bloqueid
+    end
+
+    membership = {}
+    membership[:organization_id] = bloqueid.to_s
+    membership[:role]            = "Miembro"
+    membership[:start_date]      = Date.strptime(Date.parse(el.css("td")[3].text.strip).to_s,'%Y-%m-%d')
+    membership[:end_date]        = Date.strptime(Date.parse(el.css("td")[4].text.strip).to_s,'%Y-%m-%d')
+    membership[:district]        = el.css("td")[2].text.strip.capitalize
+    membership[:person_id]       = diputadoid.to_s
+
+    response = api.memberships.post membership
+
+    puts "Adding memberships for " + diputado[:name] + " to " + bloque
+    puts response
+
+
+    camara_response = api.search.organizations.get(:q => 'slug:"hcdn"')
+
+    if !camara_response.empty?
+      camaraid = camara_response.first["id"]
+      puts "Camara ya existe id: "  + camaraid
+    else
+      camaraobj = {}
+      camaraobj[:name] = "Honorable Cámara de Diputados de la Nación"
+      camaraobj[:slug] = "hcdn"
+      camara_response = api.organizations.post camaraobj
+      camaraid = camara_response["id"]
+      puts "Nueva camara id: "  + camaraid
+    end
+
+    membership = {}
+    membership[:organization_id] = camaraid
+    membership[:role] = "Diputado"
+    membership[:start_date]      = Date.strptime(Date.parse(el.css("td")[3].text.strip).to_s,'%Y-%m-%d')
+    membership[:end_date]        = Date.strptime(Date.parse(el.css("td")[4].text.strip).to_s,'%Y-%m-%d')
+    membership[:district]    = el.css("td")[2].text.strip.capitalize
+    membership[:person_id]    = diputadoid
+
+    puts "Adding memberships for " + diputado[:name] + " hcdn"
+    response = api.memberships.post membership
+
   end
 
 end
 
-#data[:bloques].uniq!.sort!
+data[:bloques].uniq!.sort!
+
 
 if options[:output]
   File.open(options[:output], "w") do |file|
