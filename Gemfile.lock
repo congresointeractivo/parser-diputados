@@ -11,10 +11,14 @@ GEM
       mini_portile (~> 0.5.0)
     popit (0.0.4)
       httparty (~> 0.10.0)
+    rufus-lru (1.0.5)
+    rufus-verbs (1.0.1)
+      rufus-lru
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   nokogiri
-  popit (= 0.0.4)
+  popit
+  rufus-verbs

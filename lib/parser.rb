@@ -9,13 +9,6 @@ class Parser
     @options = opts
   end
 
-  def fetch_and_clean_html
-    open(URL)
-      .read
-      .gsub("<tbody>", "<tbody><tr>")
-      .gsub("</tr>", "</tr><tr>")
-  end
-
   def parse
     raise NotImplementedError
   end
@@ -26,7 +19,16 @@ class Parser
         file.puts parse.to_json
       end
     else
-      $stdout.puts parse.to_json
+      if !@options[:instance_name]
+        $stdout.puts parse.to_json
+      end
     end
+
+    ##Request to API
+    if @options[:instance_name] 
+      parser_popit parse
+    end
+
+
   end
 end

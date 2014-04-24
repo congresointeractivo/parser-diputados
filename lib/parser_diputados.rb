@@ -5,10 +5,19 @@ require 'set'
 class ParserDiputados < Parser
 
   def fetch_and_clean_html
-    open(URL)
-      .read
-      .gsub("<tbody>", "<tbody><tr>")
-      .gsub("</tr>", "</tr><tr>")
+    cachefile = "html.cache"
+    
+    if File.exist?(cachefile)
+      content = File.read(cachefile)
+    else 
+      content = open(URL)
+        .read
+        .gsub("<tbody>", "<tbody><tr>")
+        .gsub("</tr>", "</tr><tr>");
+
+      File.open(cachefile, 'w+') {|f| f.write(content) }
+    end
+    return content
   end
 
   def parse_email element

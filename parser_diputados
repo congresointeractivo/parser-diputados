@@ -25,6 +25,7 @@
 #
 # == Author
 #   Alfredo Ramirez
+# 	Martín Szyszlican
 #
 # == Copyright
 #   Copyright (c) 2014 Congreso Interactivo. Licensed under the MIT License:
@@ -34,6 +35,8 @@ $LOAD_PATH.unshift("#{File.dirname(__FILE__)}/lib")
 
 require 'optparse'
 require 'parser_diputados'
+require 'parser_popit'
+require 'popit'
 
 options = {}
 
@@ -43,16 +46,29 @@ optparse = OptionParser.new do |option_parser|
   option_parser.on("-o", "--output FILENAME", "Save the output to a file") do |o|
     options[:output] = o
   end
+  option_parser.on("-i n", "--instance=n", "Send every row this instance of the PopIt Api on popit.mysociety.org. Default legisladores-ar [INSTANCE]") do |instance|
+    options[:instance_name] = instance
+  end
+
+  option_parser.on("-u n", "--user=n", "Api user [USERNAME]") do |user|
+    options[:api_user] = user
+  end
+
+  option_parser.on("-p n", "--password=n", "Api password [PASSWORD]") do |pass|
+    options[:api_pass] = pass
+  end
 end
 
 optparse.parse!
 
-begin
+
+  if options[:instance_name]
+	#Initialize API
+	options[:api] = PopIt.new(:instance_name => options[:instance_name], :user => options[:api_user], :password => options[:api_pass])
+  end
+  
   parser = ParserDiputados.new options
+
   parser.run
-rescue => e
-  $stderr.puts e
-  abort
-end
 
 exit 0
