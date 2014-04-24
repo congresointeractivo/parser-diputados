@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+# encoding: utf-8
+
+require 'popit'
+require 'optparse'
+require 'popit'
+
+##Parse options
+options = {}
+optparse = OptionParser.new do |option_parser|
+  option_parser.banner = "Clear a PopIt Instance. Usage: ./clear_instance -u user -p pass -i instance"
+
+  option_parser.on("-i n", "--instance=n", "Instance of the PopIt Api on popit.mysociety.org.") do |instance|
+    options[:instance_name] = instance
+  end
+
+  option_parser.on("-u n", "--user=n", "Api user [USERNAME]") do |user|
+    options[:api_user] = user
+  end
+
+  option_parser.on("-p n", "--password=n", "Api password [PASSWORD]") do |pass|
+    options[:api_pass] = pass
+  end
+end
+optparse.parse!
+
+##Connect to the API
+api = PopIt.new :instance_name => options[:instance_name], :user => options[:api_user], :password => options[:api_pass]
+
+##Delete persons
+while (persons=api.persons.get).length > 0 do
+	puts "Got "+persons.length.to_s+ " persons"
+	persons.each do |person|
+		puts "Deleting person "+person["slug"]
+		api.persons(person["id"]).delete
+	end
+end
+
+while (organizations=api.organizations.get).length > 0 do
+	##Detele organizations
+	puts "Got "+organizations.length.to_s+ " organizations"
+	organizations.each do |organization|
+		puts "Deleting organization "+organization["slug"]
+		api.organizations(organization["id"]).delete
+	end
+end
