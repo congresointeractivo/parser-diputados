@@ -50,25 +50,27 @@ optparse = OptionParser.new do |option_parser|
     options[:instance_name] = instance
   end
 
-  option_parser.on("-u n", "--user=n", "Api user [USERNAME]") do |user|
+  option_parser.on("-u n", "--user=n", "API user [USERNAME]") do |user|
     options[:api_user] = user
   end
 
-  option_parser.on("-p n", "--password=n", "Api password [PASSWORD]") do |pass|
+  option_parser.on("-p n", "--password=n", "API password [PASSWORD]") do |pass|
     options[:api_pass] = pass
   end
 end
 
 optparse.parse!
 
+if options[:instance_name]
+  #Initialize API
+  options[:api] = PopIt.new(
+    :instance_name => options[:instance_name],
+    :user => options[:api_user],
+    :password => options[:api_pass]
+  )
+end
 
-  if options[:instance_name]
-	#Initialize API
-	options[:api] = PopIt.new(:instance_name => options[:instance_name], :user => options[:api_user], :password => options[:api_pass])
-  end
-  
-  parser = ParserDiputados.new options
-
-  parser.run
+parser = ParserDiputados.new options
+parser.run
 
 exit 0
