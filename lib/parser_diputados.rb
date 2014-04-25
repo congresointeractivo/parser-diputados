@@ -5,7 +5,7 @@ require 'i18n'
 class ParserDiputados < Parser
 
   def parse
-    doc = Nokogiri::HTML fetch_and_clean_html
+    doc = Nokogiri::HTML fetch_html
 
     data = {}
     data[:diputados] = []
