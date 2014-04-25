@@ -1,6 +1,6 @@
 require 'nokogiri'
 require 'parser'
-require 'set'
+require 'i18n'
 
 class ParserDiputados < Parser
 
