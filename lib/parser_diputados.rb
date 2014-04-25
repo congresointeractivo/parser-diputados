@@ -18,8 +18,8 @@ class ParserDiputados < Parser
       diputado[:name]       = parse_name el
       diputado[:slug]       = slug diputado[:name]
       diputado[:district]   = parse_district el
-      diputado[:start_date] = parse_date extract_text(el, positions_map[:start_date])
-      diputado[:end_date]   = parse_date extract_text(el, positions_map[:end_date])
+      diputado[:start_date] = parse_date extract_text(el, :start_date)
+      diputado[:end_date]   = parse_date extract_text(el, :end_date)
       diputado[:email]      = parse_email el
       diputado[:url]        = parse_url el
       diputado[:block]      = parse_block el
@@ -53,7 +53,7 @@ class ParserDiputados < Parser
   end
 
   def parse_name element
-    clean_name = extract_text(element, positions_map[:name])
+    clean_name = extract_text(element, :name)
                   .split(",")
                   .map(&:strip)
                   .reverse
@@ -74,7 +74,7 @@ class ParserDiputados < Parser
   end
 
   def parse_district element
-    capitalize_each_word extract_text(element, positions_map[:district])
+    capitalize_each_word extract_text(element, :district)
       .split
       .map(&:capitalize)
       .join(" ")
@@ -93,7 +93,7 @@ class ParserDiputados < Parser
   end
 
   def parse_block el
-    extract_text(el, positions_map[:block]).
+    extract_text(el, :block).
       capitalize
   end
 
@@ -109,7 +109,8 @@ class ParserDiputados < Parser
     }
   end
 
-  def extract_text element, index
+  def extract_text element, name
+    index = positions_map[name]
     element.css("td")[index].text.strip rescue nil
   end
 
