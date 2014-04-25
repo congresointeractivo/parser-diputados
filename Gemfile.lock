@@ -4,6 +4,7 @@ GEM
     httparty (0.10.2)
       multi_json (~> 1.0)
       multi_xml (>= 0.5.2)
+    i18n (0.6.9)
     mini_portile (0.5.3)
     multi_json (1.9.2)
     multi_xml (0.5.5)
@@ -11,14 +12,11 @@ GEM
       mini_portile (~> 0.5.0)
     popit (0.0.4)
       httparty (~> 0.10.0)
-    rufus-lru (1.0.5)
-    rufus-verbs (1.0.1)
-      rufus-lru
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  i18n
   nokogiri
   popit
-  rufus-verbs
