@@ -4,35 +4,19 @@ def parser_popit data
 
   @api = @options[:api]
 
-  data[:diputados].each do |diputado_data|
-    diputado = {}
-
-    diputado[:name]             = (diputado_data[:nombre].to_s + " " + diputado_data[:apellido].to_s).strip.capitalize
-    diputado[:slug]             = slug diputado[:name]
-
-    diputado[:images]           =  {}
-    diputado[:images][:url]     = diputado_data[:imagen_url]
-
-    diputado[:contact_details]  = []
-
-    contact = {}
-    contact[:label]             = "email"
-    contact[:type]              = "email"
-    contact[:value]             = diputado_data[:email]
-
-    diputado[:contact_details] << contact
+  data[:diputados].each do |diputado|
 
     bloque = {}
-    bloque[:name] = diputado_data[:bloque].strip.capitalize
+    bloque[:name] = diputado[:block]
     bloque[:slug] = slug bloque[:name]
 
     camara = {}
     camara[:name] = "Honorable Cámara de Diputados de la Nación"
     camara[:slug] = "hcdn"
 
-    start_date      = Date.strptime(Date.parse(diputado_data[:inicio_mandato].strip).to_s,'%Y-%m-%d')
-    end_date        = Date.strptime(Date.parse(diputado_data[:fin_mandato].strip).to_s,'%Y-%m-%d')
-    district        = diputado_data[:provincia].capitalize
+    start_date      = diputado[:start_date]
+    end_date        = diputado[:end_date]
+    district        = diputado[:district]
 
 
     diputado_response = update_person diputado
@@ -45,19 +29,16 @@ def parser_popit data
   end
 end
 
-def slug text
-  return I18n.transliterate(text).gsub(" ","-").downcase
-end
 
 
 def update_membership organization, person, role, start_date, end_date, district
   membership = {}
   membership[:organization_id] = organization["id"]
-  membership[:person_id]    = person["id"]
-  membership[:role] = role
+  membership[:person_id]       = person["id"]
+  membership[:role]            = role
   membership[:start_date]      = start_date
   membership[:end_date]        = end_date
-  membership[:district]    = district
+  membership[:district]        = district
 
 
   # Check to see if content exists
