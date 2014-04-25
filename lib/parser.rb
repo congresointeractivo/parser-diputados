@@ -9,6 +9,25 @@ class Parser
     @options = opts
   end
 
+  def fetch_and_clean_html
+    cachefile = "html.cache"
+
+    if File.exist?(cachefile)
+      content = File.read(cachefile)
+    else
+      content = open(URL)
+        .read
+        .gsub("<tbody>", "<tbody><tr>")
+        .gsub("</tr>", "</tr><tr>");
+
+      File.open(cachefile, 'w+') do |file|
+        file.write(content)
+      end
+    end
+
+    content
+  end
+
   def parse
     raise NotImplementedError
   end
