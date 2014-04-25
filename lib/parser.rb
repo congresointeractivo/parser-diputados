@@ -40,14 +40,9 @@ class Parser
     else
       if !@options[:instance_name]
         $stdout.puts parse.to_json
+      else
+        parser_popit parse
       end
     end
-
-    ##Request to API
-    if @options[:instance_name] 
-      parser_popit parse
-    end
-
-
   end
 end
