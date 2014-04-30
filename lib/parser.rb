@@ -3,8 +3,6 @@ require 'json'
 
 class Parser
 
-  URL = "http://www.diputados.gov.ar/diputados/listadip.html"
-
   def initialize opts={}
     @options = opts
   end
@@ -15,7 +13,7 @@ class Parser
 
   def run
     if @options[:output]
-      File.open(@options[:output], "w") do |file|
+      File.open @options[:output], "w" do |file|
         file.puts parse.to_json
       end
     else
@@ -30,8 +28,8 @@ class Parser
   private
   def fetch_html
     if @options[:cache]
-      if File.exist?(cachefile)
-        File.read(cachefile)
+      if File.exist? cachefile
+        File.read cachefile
       else
         save_cache fetch_and_clean_html
       end
@@ -41,20 +39,30 @@ class Parser
   end
 
   def fetch_and_clean_html
-    open(URL)
-      .read
-      .gsub("<tbody>", "<tbody><tr>")
-      .gsub("</tr>", "</tr><tr>");
+    open(url).read
   end
 
-  def cachefile
-    "html.cache"
-  end
 
   def save_cache content
-    File.open(cachefile, 'w+') do |file|
-      file.write(content)
+    File.open cachefile, 'w+' do |file|
+      file.write content
     end
     content
   end
+
+  def url
+    raise NotImplementedError
+  end
+
+  def cachefile
+    raise NotImplementedError
+  end
+
+  def capitalize_each_word text
+    text
+      .split(" ")
+      .map(&:capitalize)
+      .join(" ")
+  end
+
 end
