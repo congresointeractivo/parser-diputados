@@ -24,8 +24,12 @@ class ParserDiputados < Parser
       diputado[:url]        = parse_url el
       diputado[:block]      = parse_block el
 
-      diputado[:images] = {}
-      diputado[:images][:url] = parse_image_url el
+      diputado[:images] = []
+      
+      image = {}
+      image[:url] = parse_image_url el
+
+      diputado[:images] << image
 
       diputado[:contact_details]  = [contact_details(diputado[:email])]
 
