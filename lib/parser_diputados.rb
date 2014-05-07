@@ -1,6 +1,9 @@
 require 'nokogiri'
 require 'parser'
+require 'commission_parser'
 require 'i18n'
+
+I18n.enforce_available_locales = false
 
 class ParserDiputados < Parser
 
@@ -14,8 +17,8 @@ class ParserDiputados < Parser
       next if el.css("td").empty?
 
       diputado = {}
-
       diputado[:name]       = parse_name el
+
       diputado[:slug]       = slug diputado[:name]
       diputado[:district]   = parse_district el
       diputado[:start_date] = parse_date extract_text(el, :start_date)
@@ -32,7 +35,7 @@ class ParserDiputados < Parser
       diputado[:images] << image
 
       diputado[:contact_details]  = [contact_details(diputado[:email])]
-
+      diputado[:commissions] = parse_commissions parse_username(el)
       data[:diputados] << diputado
     end
 
@@ -41,13 +44,26 @@ class ParserDiputados < Parser
 
 
   private
-  def parse_email element
-    username = element
+  def fetch_and_clean_html
+    super
+      .gsub("<tbody>", "<tbody><tr>")
+      .gsub("</tr>", "</tr><tr>")
+  end
+
+  def parse_commissions username
+    CommissionParser.parse username, @options
+  end
+
+  def parse_username element
+    element
       .css("td a")
       .first['href']
       .split("/")[2]
       .strip
+  end
 
+  def parse_email element
+    username = parse_username element
     "#{username}@diputados.gob.ar"
   end
 
@@ -101,7 +117,6 @@ class ParserDiputados < Parser
       capitalize
   end
 
-
   def positions_map
     @postions_map ||= {
       image_url: 0,
@@ -118,10 +133,12 @@ class ParserDiputados < Parser
     element.css("td")[index].text.strip rescue nil
   end
 
-  def capitalize_each_word text
-    text
-      .split(" ")
-      .map(&:capitalize)
-      .join(" ")
+  def url
+    "http://www.diputados.gov.ar/diputados/listadip.html"
   end
+
+  def cachefile
+    ".cache/listado_diputados.html"
+  end
+
 end

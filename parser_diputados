@@ -49,7 +49,7 @@ optparse = OptionParser.new do |option_parser|
     options[:output] = o
   end
 
-  option_parser.on("-c", "--[no-]cache", "Use cache if exist") do |c|
+  option_parser.on("-c", "--[no-]cache", "Use cache") do |c|
     options[:cache] = c
   end
 
